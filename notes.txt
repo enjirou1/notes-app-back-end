@@ -1,0 +1,80 @@
+ESLint:
+    - npm install eslint --save-dev // membantu penulisan kode javascript dengan konsisten
+    - npx eslint --init // konfigurasi
+    - "lint": "eslint ./" // tambahkan di script
+    - npm run lint
+    - Install ekstensi ESLint di VS Code (optional)
+    - Tekan icon lampu, kemudian pilih opsi ESLint: Manage Library Execution.
+
+Hapi:
+    - npm install @hapi/hapi // untuk menggunakan hapi framework web server
+
+Nanoid: 
+    - npm install nanoid // untuk generate unique string
+
+Deploy Web Server di AWS EC2 Instance:
+    1. Create IAM Users (optional):
+        - Buka AWS Management Console
+        - Select All Services -> IAM -> Users
+        - Add user. Access Type: AWS Management Console Access, Require password reset: uncheck
+        - Add user to group -> create group
+        - Pilih AmazonEC2FullAccess
+        - Download .csv untuk mendapat kredensial
+        - Login dengan url pada .csv
+
+    2. Create and Run Amazon EC2 Instance
+        - All Services -> EC2
+        - Launch instance
+        - Pilih AMI Ubuntu Server 20.04 LTS 64-bit (x86)
+        - Add tag
+        - Add rule
+        - Pilih Custom TCP, port range 5000, source-nya Anywhere
+        - Ubah nama Security Group dan Description
+        - Create a new key pair
+        - Download key pair -> taruh di folder project
+        - Pilih instance -> connect
+        - Ubah permission pada berkas .pem:
+            $path = ".\notes-api-webserver.pem"
+            # Reset to remove explicit permissions
+            icacls.exe $path /reset
+            # Give current user explicit read-permission
+            icacls.exe $path /GRANT:R "$($env:USERNAME):(R)"
+            # Disable inheritance and remove inherited permissions
+            icacls.exe $path /inheritance:r
+        - Untuk mengakses instance copy ssh di SSH client ke cmd/terminal di folder berkas .pem
+        - Untuk keluar dari EC2 instance gunakan perintah exit
+
+    3. Mengunggah Project ke Github:
+        - git init
+        - Buat .gitignore agar node_modules dan file .pem tidak diikutkan di git
+        - git add .
+        - git commit -m "initial commit"
+        - Buat repository di Github
+        - git remote add origin <remote repository URL>
+        - git push origin master
+        - Check git --version di EC2 instance, jika git belum terpasang jalankan sudo apt-get install git 
+        - git clone <remote repository URL>
+        - cd <nama folder>
+        - Ketik ls untuk melihat isi dalam folder
+        - Pastikan versi node komputer dan EC2 instance sama
+        - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash // Untuk menggunakan tools nvm agar bisa mengubah versi Node.js
+        - nvm install <versi node>. ex: nvm install v14.15.4
+        - node -v
+        - npm install -> npm run start
+        - Gunakan host 0.0.0.0 agar dapat diakses melalui seluruh alamat IP pada komputer
+        - Ubah nilai properti host sesuai dengan environment yang ditetapkan
+        - Tetapkan environment pada npm runner script
+        - git add . -> git commit -m "" -> git push origin master
+        - Akses kembali EC2 instance
+        - git pull origin master
+        - npm run start-prod
+        - akses dengan IP publik beserta port. ex: 18.140.116.214:5000
+
+    4. Process Manager:
+        - Process Manager untuk menjaga server tetap hidup, ketika crash akan otomatis menjalankan ulang
+        - npm install -g pm2 di EC2 instance
+        - cd <nama folder>
+        - pm2 start npm --name "nama" -- run "start-prod"
+        - pm2 restart <nama> // untuk restart proses secara manual
+        - pm2 stop <nama> // untuk menghentikan proses
+        - pm2 start <nama> // untuk menjalankan kembali proses
