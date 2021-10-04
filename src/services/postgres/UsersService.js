@@ -77,7 +77,7 @@ class UsersService {
             throw new AuthenticationError('Kredensial yang Anda berikan salah');
         }
         return id;
-      }
+    }
 }
 
 module.exports = UsersService;
